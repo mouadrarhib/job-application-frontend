@@ -1,0 +1,62 @@
+<div class="container mt-4">
+    <h2>Send Emails to Recruiters</h2>
+  
+    <!-- Search Form -->
+    <div class="row mb-3">
+      <div class="col-md-4">
+        <input
+          type="text"
+          class="form-control"
+          placeholder="Search by location"
+          [(ngModel)]="searchLocation"
+          (input)="onSearch()"
+        />
+      </div>
+      <div class="col-md-4">
+        <select
+          class="form-select"
+          [(ngModel)]="searchStatus"
+          (change)="onSearch()"
+        >
+          <option value="">All Statuses</option>
+          <option *ngFor="let status of statuses" [value]="status">{{ status }}</option>
+        </select>
+      </div>
+      <div class="col-md-4">
+        <button class="btn btn-secondary" (click)="clearSearch()">Clear</button>
+      </div>
+    </div>
+  
+    <!-- Select All Checkbox -->
+    <div class="form-check mb-3">
+      <input
+        type="checkbox"
+        class="form-check-input"
+        id="select-all"
+        [checked]="isAllSelected()"
+        (change)="toggleSelectAll()"
+      />
+      <label class="form-check-label" for="select-all">Select All</label>
+    </div>
+  
+    <!-- Recruiters List with Checkboxes -->
+    <div class="list-group mb-3">
+      <div *ngFor="let recruiter of filteredRecruiters" class="list-group-item">
+        <div class="form-check">
+          <input
+            type="checkbox"
+            class="form-check-input"
+            [id]="'recruiter-' + recruiter.id"
+            [checked]="isSelected(recruiter.id)"
+            (change)="toggleRecruiterSelection(recruiter.id)"
+          />
+          <label class="form-check-label" [for]="'recruiter-' + recruiter.id">
+            {{ recruiter.name }} ({{ recruiter.email }}) - {{ recruiter.company }}
+          </label>
+        </div>
+      </div>
+    </div>
+  
+    <!-- Send Emails Button -->
+    <button class="btn btn-primary" (click)="sendEmails()">Send Emails</button>
+  </div>
