@@ -1,45 +1,179 @@
-<div class="container mt-4">
-    <h2>{{ id ? 'Edit Recruiter' : 'Add Recruiter' }}</h2>
-    <button class="btn btn-secondary mb-3" routerLink="/">Back to List</button>
-    <form [formGroup]="recruiterForm" (ngSubmit)="onSubmit()">
-      <div class="mb-3">
-        <label for="name" class="form-label">Name</label>
-        <input type="text" class="form-control" id="name" formControlName="name" />
-      </div>
-      <div class="mb-3">
-        <label for="email" class="form-label">Email</label>
-        <input type="email" class="form-control" id="email" formControlName="email" />
-      </div>
-      <div class="mb-3">
-        <label for="company" class="form-label">Company</label>
-        <input type="text" class="form-control" id="company" formControlName="company" />
-      </div>
-      <div class="mb-3">
-        <label for="jobTitle" class="form-label">Job Title</label>
-        <input type="text" class="form-control" id="jobTitle" formControlName="jobTitle" />
-      </div>
-      <div class="mb-3">
-        <label for="location" class="form-label">Location</label>
-        <input type="text" class="form-control" id="location" formControlName="location" />
-      </div>
-      <div class="mb-3">
-        <label for="language" class="form-label">Language</label>
-        <select class="form-select" id="language" formControlName="language">
-          <option *ngFor="let lang of languages" [value]="lang">{{ lang }}</option>
-        </select>
-      </div>
-      <div class="mb-3">
-        <label for="status" class="form-label">Status</label>
-        <select class="form-select" id="status" formControlName="status">
-          <option *ngFor="let status of statuses" [value]="status">{{ status }}</option>
-        </select>
-      </div>
-      <div class="mb-3">
-        <label for="feedback" class="form-label">Feedback</label>
-        <textarea class="form-control" id="feedback" formControlName="feedback"></textarea>
-      </div>
-      <button type="submit" class="btn btn-primary" [disabled]="recruiterForm.invalid">
-        {{ id ? 'Update' : 'Create' }}
+<div class="container-fluid py-4">
+  <div class="custom-card">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h2 class="mb-0">
+        <i class="fas fa-user-edit me-2"></i>
+        {{ id ? 'Edit Recruiter' : 'Add New Recruiter' }}
+      </h2>
+      <button class="btn btn-outline-secondary" routerLink="/">
+        <i class="fas fa-arrow-left me-2"></i>Back to List
       </button>
+    </div>
+
+    <form [formGroup]="recruiterForm" (ngSubmit)="onSubmit()" class="form-custom">
+      <div class="row g-4">
+        <!-- Name Field -->
+        <div class="col-md-6">
+          <div class="form-group">
+            <label for="name" class="form-label">
+              <i class="fas fa-user me-2"></i>Name
+            </label>
+            <input 
+              type="text" 
+              class="form-control" 
+              id="name" 
+              formControlName="name"
+              [class.is-invalid]="recruiterForm.get('name')?.invalid && recruiterForm.get('name')?.touched"
+            />
+            <div class="invalid-feedback" *ngIf="recruiterForm.get('name')?.invalid && recruiterForm.get('name')?.touched">
+              Name is required
+            </div>
+          </div>
+        </div>
+
+        <!-- Email Field -->
+        <div class="col-md-6">
+          <div class="form-group">
+            <label for="email" class="form-label">
+              <i class="fas fa-envelope me-2"></i>Email
+            </label>
+            <input 
+              type="email" 
+              class="form-control" 
+              id="email" 
+              formControlName="email"
+              [class.is-invalid]="recruiterForm.get('email')?.invalid && recruiterForm.get('email')?.touched"
+            />
+            <div class="invalid-feedback" *ngIf="recruiterForm.get('email')?.invalid && recruiterForm.get('email')?.touched">
+              Please enter a valid email address
+            </div>
+          </div>
+        </div>
+
+        <!-- Company Field -->
+        <div class="col-md-6">
+          <div class="form-group">
+            <label for="company" class="form-label">
+              <i class="fas fa-building me-2"></i>Company
+            </label>
+            <input 
+              type="text" 
+              class="form-control" 
+              id="company" 
+              formControlName="company"
+              [class.is-invalid]="recruiterForm.get('company')?.invalid && recruiterForm.get('company')?.touched"
+            />
+            <div class="invalid-feedback" *ngIf="recruiterForm.get('company')?.invalid && recruiterForm.get('company')?.touched">
+              Company name is required
+            </div>
+          </div>
+        </div>
+
+        <!-- Job Title Field -->
+        <div class="col-md-6">
+          <div class="form-group">
+            <label for="jobTitle" class="form-label">
+              <i class="fas fa-briefcase me-2"></i>Job Title
+            </label>
+            <input 
+              type="text" 
+              class="form-control" 
+              id="jobTitle" 
+              formControlName="jobTitle"
+              [class.is-invalid]="recruiterForm.get('jobTitle')?.invalid && recruiterForm.get('jobTitle')?.touched"
+            />
+            <div class="invalid-feedback" *ngIf="recruiterForm.get('jobTitle')?.invalid && recruiterForm.get('jobTitle')?.touched">
+              Job title is required
+            </div>
+          </div>
+        </div>
+
+        <!-- Location Field -->
+        <div class="col-md-6">
+          <div class="form-group">
+            <label for="location" class="form-label">
+              <i class="fas fa-map-marker-alt me-2"></i>Location
+            </label>
+            <input 
+              type="text" 
+              class="form-control" 
+              id="location" 
+              formControlName="location"
+              [class.is-invalid]="recruiterForm.get('location')?.invalid && recruiterForm.get('location')?.touched"
+            />
+            <div class="invalid-feedback" *ngIf="recruiterForm.get('location')?.invalid && recruiterForm.get('location')?.touched">
+              Location is required
+            </div>
+          </div>
+        </div>
+
+        <!-- Language Field -->
+        <div class="col-md-6">
+          <div class="form-group">
+            <label for="language" class="form-label">
+              <i class="fas fa-language me-2"></i>Language
+            </label>
+            <select 
+              class="form-select" 
+              id="language" 
+              formControlName="language"
+              [class.is-invalid]="recruiterForm.get('language')?.invalid && recruiterForm.get('language')?.touched"
+            >
+              <option *ngFor="let lang of languages" [value]="lang">{{ lang }}</option>
+            </select>
+            <div class="invalid-feedback" *ngIf="recruiterForm.get('language')?.invalid && recruiterForm.get('language')?.touched">
+              Please select a language
+            </div>
+          </div>
+        </div>
+
+        <!-- Status Field -->
+        <div class="col-md-6">
+          <div class="form-group">
+            <label for="status" class="form-label">
+              <i class="fas fa-info-circle me-2"></i>Status
+            </label>
+            <select 
+              class="form-select" 
+              id="status" 
+              formControlName="status"
+              [class.is-invalid]="recruiterForm.get('status')?.invalid && recruiterForm.get('status')?.touched"
+            >
+              <option *ngFor="let status of statuses" [value]="status">{{ status }}</option>
+            </select>
+            <div class="invalid-feedback" *ngIf="recruiterForm.get('status')?.invalid && recruiterForm.get('status')?.touched">
+              Please select a status
+            </div>
+          </div>
+        </div>
+
+        <!-- Feedback Field -->
+        <div class="col-12">
+          <div class="form-group">
+            <label for="feedback" class="form-label">
+              <i class="fas fa-comment me-2"></i>Feedback
+            </label>
+            <textarea 
+              class="form-control" 
+              id="feedback" 
+              formControlName="feedback"
+              rows="4"
+            ></textarea>
+          </div>
+        </div>
+
+        <!-- Submit Button -->
+        <div class="col-12 mt-4">
+          <button 
+            type="submit" 
+            class="btn btn-custom-primary"
+            [disabled]="recruiterForm.invalid || isSubmitting"
+          >
+            <i class="fas" [class.fa-save]="!id" [class.fa-edit]="id"></i>
+            <span class="ms-2">{{ id ? 'Update Recruiter' : 'Create Recruiter' }}</span>
+          </button>
+        </div>
+      </div>
     </form>
   </div>
+</div>

@@ -8,7 +8,7 @@ import { RouterLink } from '@angular/router';
 @Component({
   selector: 'app-recruiter-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink], // Import FormsModule for ngModel
+  imports: [CommonModule, FormsModule, RouterLink],
   templateUrl: './recruiter-list.component.html',
   styleUrls: ['./recruiter-list.component.css']
 })
@@ -24,41 +24,47 @@ export class RecruiterListComponent implements OnInit {
     this.loadRecruiters();
   }
 
-  // Load all recruiters or filtered recruiters
   loadRecruiters(): void {
     if (this.searchLocation || this.searchStatus) {
-      // Perform search if location or status is provided
       this.recruiterService
         .searchByCompanyStatusAndLocation('', this.searchStatus || RecruiterStatus.CONTACTED, this.searchLocation)
-        .subscribe((data) => {
-          this.recruiters = data;
+        .subscribe({
+          next: (data) => {
+            this.recruiters = data || [];
+          },
+          error: (error) => {
+            console.error('Error loading recruiters:', error);
+            this.recruiters = [];
+          }
         });
     } else {
-      // Load all recruiters if no search criteria
-      this.recruiterService.getAllRecruiters().subscribe((data) => {
-        this.recruiters = data;
+      this.recruiterService.getAllRecruiters().subscribe({
+        next: (data) => {
+          this.recruiters = data || [];
+        },
+        error: (error) => {
+          console.error('Error loading recruiters:', error);
+          this.recruiters = [];
+        }
       });
     }
   }
 
-  // Triggered when the user types in the search input or selects a status
   onSearch(): void {
     this.loadRecruiters();
   }
 
-  // Clear the search inputs and reload all recruiters
   clearSearch(): void {
     this.searchLocation = '';
     this.searchStatus = '';
     this.loadRecruiters();
   }
 
-  // Delete a recruiter
   deleteRecruiter(id: number): void {
     if (confirm('Are you sure you want to delete this recruiter?')) {
       this.recruiterService.deleteRecruiter(id).subscribe({
         next: () => {
-          this.loadRecruiters(); // Refresh the list after deletion
+          this.loadRecruiters();
         },
         error: (error) => {
           console.error('Error deleting recruiter:', error);

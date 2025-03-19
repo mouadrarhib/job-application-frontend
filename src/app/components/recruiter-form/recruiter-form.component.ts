@@ -9,7 +9,7 @@ import { CommonModule } from '@angular/common';
 @Component({
   selector: 'app-recruiter-form',
   standalone: true,
-  imports: [ReactiveFormsModule, CommonModule,RouterLink], // Add necessary modules here
+  imports: [ReactiveFormsModule, CommonModule, RouterLink],
   templateUrl: './recruiter-form.component.html',
   styleUrls: ['./recruiter-form.component.css']
 })
@@ -18,6 +18,7 @@ export class RecruiterFormComponent implements OnInit {
   languages = Object.values(Language);
   statuses = Object.values(RecruiterStatus);
   id: number | null = null;
+  isSubmitting = false;
 
   constructor(
     private fb: FormBuilder,
@@ -26,11 +27,11 @@ export class RecruiterFormComponent implements OnInit {
     private router: Router
   ) {
     this.recruiterForm = this.fb.group({
-      name: ['', Validators.required],
+      name: ['', [Validators.required, Validators.minLength(2)]],
       email: ['', [Validators.required, Validators.email]],
-      company: ['', Validators.required],
-      jobTitle: ['', Validators.required],
-      location: ['', Validators.required],
+      company: ['', [Validators.required, Validators.minLength(2)]],
+      jobTitle: ['', [Validators.required, Validators.minLength(2)]],
+      location: ['', [Validators.required, Validators.minLength(2)]],
       language: [Language.EN, Validators.required],
       status: [RecruiterStatus.CONTACTED, Validators.required],
       feedback: ['']
@@ -38,36 +39,55 @@ export class RecruiterFormComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.id = this.route.snapshot.params['id'];
+    const idParam = this.route.snapshot.params['id'];
+    if (idParam) {
+      this.id = parseInt(idParam, 10);
+      this.loadRecruiter();
+    }
+  }
+
+  loadRecruiter(): void {
     if (this.id) {
-      this.recruiterService.getRecruiterById(this.id).subscribe((recruiter) => {
-        this.recruiterForm.patchValue(recruiter);
+      this.recruiterService.getRecruiterById(this.id).subscribe({
+        next: (recruiter) => {
+          this.recruiterForm.patchValue(recruiter);
+        },
+        error: (error) => {
+          console.error('Error loading recruiter:', error);
+          this.router.navigate(['/']);
+        }
       });
     }
   }
 
   onSubmit(): void {
-    if (this.recruiterForm.valid) {
+    if (this.recruiterForm.valid && !this.isSubmitting) {
+      this.isSubmitting = true;
       const recruiterRequest: RecruiterRequest = this.recruiterForm.value;
-      if (this.id) {
-        this.recruiterService.updateRecruiter(this.id, recruiterRequest).subscribe({
-          next: () => {
-            this.router.navigate(['/']);
-          },
-          error: (error) => {
-            console.error('Error updating recruiter:', error);
-          }
-        });
-      } else {
-        this.recruiterService.createRecruiter(recruiterRequest).subscribe({
-          next: () => {
-            this.router.navigate(['/recruiters']);
-          },
-          error: (error) => {
-            console.error('Error creating recruiter:', error);
-          }
-        });
-      }
+
+      const request$ = this.id
+        ? this.recruiterService.updateRecruiter(this.id, recruiterRequest)
+        : this.recruiterService.createRecruiter(recruiterRequest);
+
+      request$.subscribe({
+        next: () => {
+          this.router.navigate(['/']);
+        },
+        error: (error) => {
+          console.error('Error saving recruiter:', error);
+          this.isSubmitting = false;
+        },
+        complete: () => {
+          this.isSubmitting = false;
+        }
+      });
+    } else {
+      Object.keys(this.recruiterForm.controls).forEach(key => {
+        const control = this.recruiterForm.get(key);
+        if (control?.invalid) {
+          control.markAsTouched();
+        }
+      });
     }
   }
 }

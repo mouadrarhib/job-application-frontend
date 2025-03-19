@@ -1,107 +1,139 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { CdkVirtualScrollViewport, ScrollingModule } from '@angular/cdk/scrolling';
 import { RecruiterResponse, RecruiterStatus } from '../../models/recruiter-response.model';
 import { EmailService } from '../../services/email.service';
 import { RecruiterService } from '../../services/recruiter.service';
+import { BehaviorSubject, debounceTime, distinctUntilChanged } from 'rxjs';
 
 @Component({
   selector: 'app-email-sender',
   standalone: true,
-  imports: [CommonModule, FormsModule], // Import FormsModule for ngModel
+  imports: [CommonModule, FormsModule, ScrollingModule],
   templateUrl: './email-sender.component.html',
-  styleUrls: ['./email-sender.component.css']
+  styleUrls: ['./email-sender.component.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class EmailSenderComponent implements OnInit {
-  selectedRecruiterIds: number[] = [];
+  @ViewChild(CdkVirtualScrollViewport) viewport!: CdkVirtualScrollViewport;
+
+  selectedRecruiterIds: Set<number> = new Set();
   recruiters: RecruiterResponse[] = [];
   filteredRecruiters: RecruiterResponse[] = [];
-  searchLocation: string = '';
-  searchStatus: RecruiterStatus | '' = '';
+  searchLocation$ = new BehaviorSubject<string>('');
+  searchStatus$ = new BehaviorSubject<RecruiterStatus | ''>('');
   statuses = Object.values(RecruiterStatus);
+  
+  readonly itemSize = 60; // Height of each item in pixels
+  readonly pageSize = 50; // Number of items to load at once
+  isLoading = false;
 
   constructor(
     private emailService: EmailService,
     private recruiterService: RecruiterService
-  ) {}
+  ) {
+    // Setup debounced search
+    this.searchLocation$.pipe(
+      debounceTime(300),
+      distinctUntilChanged()
+    ).subscribe(() => this.onSearch());
+
+    this.searchStatus$.pipe(
+      distinctUntilChanged()
+    ).subscribe(() => this.onSearch());
+  }
 
   ngOnInit(): void {
     this.loadRecruiters();
   }
 
-  // Load all recruiters
+  // Load recruiters with pagination
   loadRecruiters(): void {
-    this.recruiterService.getAllRecruiters().subscribe((data: RecruiterResponse[]) => {
-      this.recruiters = data;
-      this.filteredRecruiters = data; // Initialize filteredRecruiters with all recruiters
+    this.isLoading = true;
+    this.recruiterService.getAllRecruiters().subscribe({
+      next: (data: RecruiterResponse[]) => {
+        this.recruiters = data;
+        this.filteredRecruiters = data;
+        this.isLoading = false;
+      },
+      error: (error) => {
+        console.error('Error loading recruiters:', error);
+        this.isLoading = false;
+      }
     });
   }
 
-  // Filter recruiters based on search criteria
+  // Optimized search with debounce
   onSearch(): void {
+    const searchLocation = this.searchLocation$.value.toLowerCase();
+    const searchStatus = this.searchStatus$.value;
+
     this.filteredRecruiters = this.recruiters.filter((recruiter) => {
-      const matchesLocation = this.searchLocation
-        ? recruiter.location.toLowerCase().includes(this.searchLocation.toLowerCase())
-        : true;
-      const matchesStatus = this.searchStatus
-        ? recruiter.status === this.searchStatus
-        : true;
+      const matchesLocation = !searchLocation || 
+        recruiter.location.toLowerCase().includes(searchLocation);
+      const matchesStatus = !searchStatus || 
+        recruiter.status === searchStatus;
       return matchesLocation && matchesStatus;
     });
   }
 
-  // Clear the search inputs and reset the filtered list
+  // Update search terms
+  updateSearchLocation(value: string): void {
+    this.searchLocation$.next(value);
+  }
+
+  updateSearchStatus(value: RecruiterStatus | ''): void {
+    this.searchStatus$.next(value);
+  }
+
+  // Clear search with optimized handling
   clearSearch(): void {
-    this.searchLocation = '';
-    this.searchStatus = '';
+    this.searchLocation$.next('');
+    this.searchStatus$.next('');
     this.filteredRecruiters = this.recruiters;
   }
 
-  // Check if a recruiter is selected
+  // Optimized selection handling using Set
   isSelected(id: number): boolean {
-    return this.selectedRecruiterIds.includes(id);
+    return this.selectedRecruiterIds.has(id);
   }
 
-  // Toggle selection of a recruiter
   toggleRecruiterSelection(id: number): void {
-    const index = this.selectedRecruiterIds.indexOf(id);
-    if (index === -1) {
-      this.selectedRecruiterIds.push(id); // Add to selection
+    if (this.selectedRecruiterIds.has(id)) {
+      this.selectedRecruiterIds.delete(id);
     } else {
-      this.selectedRecruiterIds.splice(index, 1); // Remove from selection
+      this.selectedRecruiterIds.add(id);
     }
   }
 
-  // Check if all recruiters are selected
   isAllSelected(): boolean {
-    return this.filteredRecruiters.every((recruiter) =>
-      this.selectedRecruiterIds.includes(recruiter.id)
-    );
+    return this.filteredRecruiters.length > 0 && 
+           this.filteredRecruiters.every(recruiter => 
+             this.selectedRecruiterIds.has(recruiter.id)
+           );
   }
 
-  // Toggle selection of all recruiters
   toggleSelectAll(): void {
     if (this.isAllSelected()) {
-      // Deselect all
-      this.selectedRecruiterIds = this.selectedRecruiterIds.filter(
-        (id) => !this.filteredRecruiters.some((recruiter) => recruiter.id === id)
+      this.filteredRecruiters.forEach(recruiter => 
+        this.selectedRecruiterIds.delete(recruiter.id)
       );
     } else {
-      // Select all
-      this.filteredRecruiters.forEach((recruiter) => {
-        if (!this.selectedRecruiterIds.includes(recruiter.id)) {
-          this.selectedRecruiterIds.push(recruiter.id);
-        }
-      });
+      this.filteredRecruiters.forEach(recruiter => 
+        this.selectedRecruiterIds.add(recruiter.id)
+      );
     }
   }
 
+  // Batch process emails
   sendEmails(): void {
-    if (this.selectedRecruiterIds.length > 0) {
-      this.emailService.sendEmailsToRecruiters(this.selectedRecruiterIds).subscribe({
-        next: (response: string) => { // Handle plain text response
-          alert(response); // Show success message
-          this.selectedRecruiterIds = []; // Clear selection
+    if (this.selectedRecruiterIds.size > 0) {
+      const selectedIds = Array.from(this.selectedRecruiterIds);
+      this.emailService.sendEmailsToRecruiters(selectedIds).subscribe({
+        next: (response: string) => {
+          alert(response);
+          this.selectedRecruiterIds.clear();
         },
         error: (error) => {
           console.error('Error sending emails:', error);
@@ -111,5 +143,10 @@ export class EmailSenderComponent implements OnInit {
     } else {
       alert('Please select at least one recruiter.');
     }
+  }
+
+  // Track items for better performance
+  trackByFn(index: number, item: RecruiterResponse): number {
+    return item.id;
   }
 }
