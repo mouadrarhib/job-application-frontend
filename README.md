@@ -48,13 +48,13 @@ Check out the live version of the project hosted on Vercel:
 
 ## 🔗 **Backend Link**
 The backend for this project is hosted on AWS and uses Docker and Jenkins for deployment. Check out the backend repository here:  
-👉 [Backend Repository](https://github.com/your-username/backend-repo)
+👉 [Backend Repository](https://github.com/mouadrarhib/job-app-backend/tree/main)
 
 ---
 
 ## 📝 **How to Run the Project**
 # Step 1: Clone the repository
-git clone https://github.com/your-username/car-rental-project.git
+git clone https://github.com/mouadrarhib/job-application-frontend
 
 # Step 2: Navigate to the project directory
 cd car-rental-project
