@@ -1,59 +1,81 @@
-# JobApplicationFrontend
+# 🚀 Job Application Tracker - Frontend
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 19.1.7.
+![Project Banner](screenshots/recruiterlist.png)  
+*Manage recruiters, track applications, and send emails seamlessly!*
 
-## Development server
+---
 
-To start a local development server, run:
+## 📝 **Description**
+This project is a **Job Application Tracker** designed to help you manage recruiters efficiently. You can:
+- Add recruiters to the database with a validated form.
+- View, filter, and search recruiters by status or location.
+- Edit or delete recruiter details.
+- Send emails to recruiters individually or in bulk.
 
-```bash
+---
+
+## 🖼️ **Screenshots**
+
+### 1. Recruiter List
+![Recruiter List](screenshots/recruiterlist.png)  
+*View all recruiters, filter by status, search by location, and perform actions like edit or delete.*
+
+### 2. Add Recruiter Form
+![Add Recruiter Form](screenshots/addform.png)  
+*Add new recruiters with a user-friendly form that includes field validation.*
+
+### 3. Send Email Interface
+![Send Email](screenshots/email.png)  
+*Select recruiters and send emails individually or in bulk with a single click.*
+
+---
+
+## 🛠️ **Technologies Used**
+- **Frontend**: React.js, TailwindCSS  
+- **State Management**: Redux or Context API (if applicable)  
+- **Form Handling**: React Hook Form or Formik  
+- **Validation**: Yup or custom validators  
+- **Email Integration**: Nodemailer or third-party API (via backend)  
+- **Hosting**: Vercel  
+
+---
+
+## 🚀 **Live Preview**
+Check out the live version of the project hosted on Vercel:  
+👉 [Live Preview](https://your-vercel-link-here.com)
+
+---
+
+## 🔗 **Backend Link**
+The backend for this project is hosted on AWS and uses Docker and Jenkins for deployment. Check out the backend repository here:  
+👉 [Backend Repository](https://github.com/your-username/backend-repo)
+
+---
+
+## 📝 **How to Run the Project**
+# Step 1: Clone the repository
+git clone https://github.com/your-username/car-rental-project.git
+
+# Step 2: Navigate to the project directory
+cd car-rental-project
+
+# Step 3: Install dependencies
+npm install
+
+# Step 4: Run the development server
 ng serve
-```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+# Step 5: Open your browser and visit the application
+echo "Open your browser and visit: http://localhost:4200/"
 
-## Code scaffolding
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+## 📄 **License**
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
 
-```bash
-ng generate component component-name
-```
+---
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+## 🔧 **Badges**
+![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)  
+![Vercel](https://img.shields.io/badge/Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white)  
+![TailwindCSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)
 
-```bash
-ng generate --help
-```
-
-## Building
-
-To build the project run:
-
-```bash
-ng build
-```
-
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
-
-```bash
-ng test
-```
-
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
